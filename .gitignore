@@ -1,0 +1,27 @@
+# 依赖
+node_modules/
+
+# 构建产物（start.cmd / build.mjs 每次会自动重建）
+dist/
+
+# adb 授权密钥 —— 含私钥，是本机专属，绝不入库
+adbkeys/
+
+# 旧 TLS 自签证书残留（HTTPS 功能已移除，此目录已废弃）
+certs/
+
+# 项目自身的笔记/记忆与缓存
+.workbuddy/
+.cache/
+
+# 打包产物
+*.zip
+*.tar.gz
+
+# probe 抓流生成的临时文件
+probe-stream.h264
+
+# 日志与系统文件
+*.log
+.DS_Store
+Thumbs.db

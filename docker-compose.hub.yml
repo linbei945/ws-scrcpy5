@@ -1,0 +1,34 @@
+# ws-scrcpy5 —— 从 Docker Hub 拉取镜像运行（仅 HTTP；TLS 由前置反代提供）
+#
+# 适用场景：镜像已发布到 Docker Hub，用户直接拉取运行，不需要本地源码、不构建。
+#
+#   docker pull linbei945/ws-scrcpy5:latest
+#   docker compose -f docker-compose.hub.yml up -d
+#   docker compose -f docker-compose.hub.yml logs -f
+#
+# 本文件【没有 build: 段】——镜像已在 Hub 上，不要在本地构建。
+# （仓库里的 docker-compose.yml 带 build:，那是给「有源码、本地构建」用的，别混用。）
+#
+# 浏览器要启用 WebCodecs 需安全上下文，请在前面放反代（npm / lucky / Caddy / Cloudflare）
+# 终结 TLS，把 https://你的域名 转发到本容器 http://8080，并开启 WebSocket 透传。
+#
+# 设备连接：网页「连接设备」里填 手机IP:5555（Android 11+ 无线调试先「配对」填配对码）。
+# 历史设备在浏览器 localStorage，容器重启后还在，前提是访问地址不变。
+
+services:
+  ws-scrcpy5:
+    # 已发布到 Docker Hub（用户名 linbei945）；多架构镜像，pull 时按机器架构自动挑选
+    image: linbei945/ws-scrcpy5:latest
+    container_name: ws-scrcpy5
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # 以下两行与镜像内代码默认值一致（HOST=0.0.0.0 / PORT=8080），
+      # 保留是为了显式声明绑定地址与端口、并对换用其他镜像时做防御。可安全删除。
+      HOST: "0.0.0.0"
+      PORT: "8080"
+    volumes:
+      # adb 授权密钥：绑定挂载到项目目录下的 ./adbkeys（跟着 compose 走，便于备份/迁移）。
+      # 作用：重建容器后手机不用再点一次「允许 USB 调试」。请勿删除 ./adbkeys 目录。
+      - ./adbkeys:/root/.android

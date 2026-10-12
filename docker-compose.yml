@@ -1,0 +1,32 @@
+# ws-scrcpy5 —— 浏览器投屏容器（仅 HTTP；TLS 由前置反代提供）
+#
+# 默认档（bridge + 端口映射）：Windows(Docker Desktop) 和 Linux 都能用
+#   docker compose up -d            # 构建并启动
+#   docker compose logs -f          # 看日志（里面有访问地址）
+#
+# 本项目只暴露 HTTP(8080)。要让浏览器拿到安全上下文以启用 WebCodecs，
+# 请在前面放一个反代（npm / lucky / Caddy / Cloudflare 等）终结 TLS，
+# 把 https://你的域名 转发到本容器的 http://8080，并开启 WebSocket 透传。
+#
+# 设备连接：打开网页后在「连接设备」里填 手机IP:5555 即可
+# （Android 11+ 无线调试需要先用页面上的「配对」填配对码）。
+# 历史设备存在浏览器 localStorage 里，容器重启后还在，前提是访问地址不变。
+
+services:
+  # ------------------------------------------------------------ 默认档（bridge）
+  # 标准 bridge 网络 + 端口映射：Windows(Docker Desktop) 和 Linux 都能用，NAS 部署也用它。
+  ws-scrcpy5:
+    image: ws-scrcpy5:latest
+    build:
+      context: .
+    container_name: ws-scrcpy5
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8080"
+    volumes:
+      # adb 授权密钥：绑定挂载到项目目录下的 ./adbkeys（跟着 compose 走，便于备份/迁移）。
+      # 作用：重建容器后手机不用再点一次「允许 USB 调试」。请勿删除 ./adbkeys 目录。
+      - ./adbkeys:/root/.android

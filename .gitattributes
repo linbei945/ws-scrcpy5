@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+# 启动脚本必须保持 CRLF，否则 Windows 下执行会出问题
+start.cmd text eol=crlf
+
+# 二进制文件不能被 git 做任何换行/LF 转换
+*.exe binary
+*.dll binary
+scrcpy-server-* binary

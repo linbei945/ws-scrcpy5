@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>WS-scrcpy5 · scrcpy 5.0.1 web client</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside id="sidebar">
+        <header>
+          <h1>WS-scrcpy<span class="version">5</span></h1>
+          <p class="subtitle">基于官方 scrcpy-server 5.0.1</p>
+        </header>
+
+        <div id="envWarning" class="env-warning hidden"></div>
+
+        <section>
+          <label class="field">
+            <span>设备地址</span>
+            <div class="row">
+              <input
+                id="deviceInput"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="IP:端口，如 192.168.5.1:5555"
+              />
+              <button id="connectBtn" disabled title="adb connect 到该地址">连接</button>
+            </div>
+          </label>
+          <div id="status" class="status">未连接</div>
+
+          <div class="history">
+            <div class="history-title">历史设备</div>
+            <ul id="historyList" class="history-list"></ul>
+            <p id="historyEmpty" class="hint-line">连接过的设备会出现在这里</p>
+          </div>
+
+          <details class="pairing">
+            <summary>Android 11+ 无线调试配对</summary>
+            <div class="row">
+              <input id="pairAddress" autocomplete="off" spellcheck="false" placeholder="IP:配对端口" />
+            </div>
+            <div class="row">
+              <input id="pairCode" autocomplete="off" inputmode="numeric" maxlength="8" placeholder="6 位配对码" />
+              <button id="pairBtn">配对</button>
+            </div>
+            <p class="hint-line">手机端：开发者选项 → 无线调试 → 使用配对码配对设备</p>
+          </details>
+
+          <details class="pairing params-details">
+            <summary>更多参数</summary>
+            <div class="params">
+              <label class="field">
+                <span>解码方式</span>
+                <select id="decoderKind">
+                  <option value="auto" selected>自动（跟随环境）</option>
+                  <option value="webcodecs">WebCodecs 硬件解码</option>
+                  <option value="mse">MSE 硬件解码</option>
+                  <option value="software">WASM 软件解码</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>最大尺寸</span>
+                <input id="maxSize" type="number" min="0" step="1" placeholder="0 = 不限" />
+              </label>
+
+              <label class="field">
+                <span>码率 (Mbps)</span>
+                <input id="bitrate" type="number" min="1" max="50" step="1" placeholder="默认 8" />
+              </label>
+
+              <label class="field">
+                <span>最大帧率</span>
+                <input id="maxFps" type="number" min="1" max="120" step="1" placeholder="0 = 不限" />
+              </label>
+
+              <div class="checks">
+                <label><input id="audioEnabled" type="checkbox" /><span>音频（Android 11+）</span></label>
+                <label><input id="stayAwake" type="checkbox" /><span>保持唤醒</span></label>
+                <label><input id="showTouches" type="checkbox" /><span>显示触摸</span></label>
+                <label><input id="keyboardEnabled" type="checkbox" checked /><span>键盘输入</span></label>
+              </div>
+            </div>
+          </details>
+
+          <details class="pairing fs-details" id="filesDetails">
+            <summary>文件管理</summary>
+            <div class="files">
+              <div class="fs-toolbar">
+                <div id="fsPath" class="fs-path"></div>
+                <div class="fs-buttons">
+                  <button id="fsUp" type="button" title="上级目录">↑</button>
+                  <button id="fsRefresh" type="button" title="重新读取当前目录">刷新</button>
+                </div>
+              </div>
+              <ul id="fsList" class="fs-list"></ul>
+              <div class="fs-actions">
+                <button id="fsUpload" type="button">上传到当前目录</button>
+              </div>
+              <input id="fsUploadInput" class="hidden" type="file" multiple />
+              <div id="fsProgress" class="push-progress hidden">
+                <div id="fsBar" class="push-bar"><div id="fsBarFill"></div></div>
+                <span id="fsProgressText"></span>
+              </div>
+              <p class="hint-line">
+                点击目录进入，点击文件名提取到本机；拖入文件上传到当前目录，拖入 .apk 直接安装。
+              </p>
+            </div>
+          </details>
+
+          <div class="row buttons">
+            <button id="startBtn" class="primary">开始</button>
+            <button id="stopBtn" disabled>停止</button>
+          </div>
+        </section>
+
+        <section class="log">
+          <div class="log-title">日志</div>
+          <pre id="log"></pre>
+        </section>
+      </aside>
+
+      <main id="main">
+        <div id="stage">
+          <canvas id="screen" class="hidden" width="1" height="1"></canvas>
+          <div id="placeholder">
+            <p>输入设备地址后点击「开始」</p>
+            <p class="hint">鼠标/触摸、键盘、滚轮都会被注入到设备</p>
+          </div>
+        </div>
+        <div id="toolbar">
+          <button data-cmd="back">返回</button>
+          <button data-cmd="home">主页</button>
+          <button data-cmd="app-switch">任务列表</button>
+          <button data-cmd="power">电源</button>
+          <button data-cmd="screen-off">熄屏</button>
+          <button data-cmd="screen-on">亮屏</button>
+          <button data-cmd="volume-up">音量+</button>
+          <button data-cmd="volume-down">音量-</button>
+          <button data-cmd="notifications">通知栏</button>
+          <button data-cmd="collapse">收起面板</button>
+          <button data-cmd="rotate">旋转</button>
+          <button data-cmd="screenshot">截图</button>
+          <button data-cmd="fullscreen">全屏</button>
+        </div>
+      </main>
+    </div>
+    <div id="dropOverlay" class="drop-overlay hidden">
+      <div id="dropOverlayText">松开即可推送到设备</div>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>

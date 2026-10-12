@@ -1,0 +1,36 @@
+{
+  "name": "ws-scrcpy5",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web client for scrcpy 5.0.1 - mirror and control Android devices from a browser",
+  "main": "dist/server/index.js",
+  "scripts": {
+    "fetch-server": "node scripts/fetch-server.mjs",
+    "build": "node build.mjs",
+    "test": "esbuild tools/selftest.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/ws-scrcpy5/selftest.cjs --log-level=warning && node node_modules/.cache/ws-scrcpy5/selftest.cjs && npm run muxcheck && npm run softcheck && node tools/check-mse-geometry.mjs && node tools/check-eol.mjs",
+    "muxcheck": "esbuild tools/muxcheck.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/ws-scrcpy5/muxcheck.cjs --log-level=warning && node node_modules/.cache/ws-scrcpy5/muxcheck.cjs",
+    "softcheck": "esbuild tools/softcheck.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/ws-scrcpy5/softcheck.cjs --log-level=warning && node node_modules/.cache/ws-scrcpy5/softcheck.cjs",
+    "httpcheck": "esbuild tools/httpcheck.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/ws-scrcpy5/httpcheck.cjs --log-level=warning && node node_modules/.cache/ws-scrcpy5/httpcheck.cjs",
+    "verify:control": "node tools/verify-control.mjs",
+    "verify:device": "node tools/verify-device-control.mjs",
+    "probe": "esbuild tools/probe.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/ws-scrcpy5/probe.cjs --log-level=warning && node node_modules/.cache/ws-scrcpy5/probe.cjs",
+    "mselive": "esbuild tools/mselive.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/ws-scrcpy5/mselive.cjs --log-level=warning && node node_modules/.cache/ws-scrcpy5/mselive.cjs",
+    "typecheck": "tsc --noEmit",
+    "pack": "node tools/pack-pc.mjs",
+    "start": "npm run build && node dist/server/index.js",
+    "serve": "node dist/server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "tinyh264": "^0.0.7",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/ws": "^8.18.2",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.5.4"
+  }
+}
