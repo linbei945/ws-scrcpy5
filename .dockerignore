@@ -1,0 +1,9 @@
+node_modules
+dist
+certs
+adb
+ws-scrcpy5-pc.zip
+.workbuddy
+.git
+.gitignore
+*.log
